@@ -1,0 +1,44 @@
+version: '3.9'
+services:
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - './src:/app/src'
+      - './node_modules:/app/node_modules'
+    networks:
+      - my_network
+    ports:
+      - 3000:3000
+      - 9229:9229
+    environment:
+      DB_PORT: ${DB_PORT}
+      DB_USERNAME: ${DB_USERNAME} 
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+  postgres:
+    image: postgres:14.1
+    container_name: postgres
+    networks:
+      - my_network
+    ports:
+      - '${DB_PORT}:${DB_PORT}'
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASS}
+  pg-admin:
+    image: dpage/pgadmin4:6.4
+    container_name: pg-admin
+    networks:
+      - my_network
+    ports:
+      - '5050:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${DB_ADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${DB_ADMIN_PASS}
+networks:
+  my_network:
+    driver: bridge
